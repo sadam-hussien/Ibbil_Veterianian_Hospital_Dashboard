@@ -2,7 +2,7 @@
   <div>
     <dashboard-page-title @addEvent="$router.push({name: 'addDoctor'})" :showAddBtn="true" :showFilter="true" :showSearch="true" :showExportation="true">الاطباء</dashboard-page-title>
 
-    <main-table :fields="fields" list_url="merchant/orders"></main-table>
+    <main-table :fields="fields" list_url="customer/doctors"></main-table>
   </div>
 </template>
 <script>
