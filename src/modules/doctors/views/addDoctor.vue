@@ -3,21 +3,21 @@
     <dashboard-page-title :showSearch="false" :showFilter="false" :showMainActions="false" @addEvent="$router.push({name: 'addMerchant'})">
     إضافة طبيب
     </dashboard-page-title>
-    <ValidationObserver v-slot="{ validate }">
-      <form @submit.prevent="validate(onSubmit)">
+    <ValidationObserver v-slot="{ handleSubmit }">
+      <form @submit.prevent="handleSubmit(onSubmit)">
         <b-row>
           <b-col lg="11">
             <b-row class="justify-content-between mb-5">
               <b-col lg="8">
                 <b-row>
                   <b-col md="6" class="mb-3">
-                    <input-form placeholder="الاسم بالكامل" label="الإسم بالكامل" name="full-name" v-model="doctor.fullName"></input-form>
+                    <input-form placeholder="الاسم بالكامل" label="الإسم بالكامل" name="full-name" v-model="doctor.full_name"></input-form>
                   </b-col>
                   <b-col md="6" class="mb-3">
-                    <input-form placeholder="رقم الهاتف" label="رقم الهاتف" name="phone" v-model="doctor.phone"> </input-form>
+                    <input-form placeholder="رقم الهاتف" label="رقم الهاتف" name="phone" v-model="doctor.primary_phone_number"> </input-form>
                   </b-col>
                   <b-col md="6" class="mb-3">
-                    <input-form placeholder="رقم الهاتف اخر" label="رقم الهاتف اخر" name="phone2" v-model="doctor.phone2"></input-form>
+                    <input-form placeholder="رقم الهاتف اخر" label="رقم الهاتف اخر" name="phone2" v-model="doctor.secondary_phone_number"></input-form>
                   </b-col>
                   <b-col md="6" class="mb-3">
                     <input-form placeholder="البريد الالكترونى" label="البريد الالكترونى" name="email" v-model="doctor.email"></input-form>
@@ -27,23 +27,15 @@
                   </b-col>
                 </b-row>
               </b-col>
-              <b-col lg="3">
-                <img-upload-box name="personal-picture" label="الصورة الشخصية" />
+              <b-col :md="index === 0 ? 3 : 4" class="mb-4" v-for="(itemFile, index) in requiredDocuments" :key="index">
+                <img-upload-box :data="itemFile" :index="index" @uploadDocument="uploadDocument" />
               </b-col>
             </b-row>
-            <b-row class="mt-5">
-              <b-col md="4" class="mb-4" v-for="(itemFile, index) in filesInps" :key="index">
-                <img-upload-box :name="itemFile.name" :label="itemFile.label" :editing="itemFile.editing" :index="index" @editLabel="editLabel" />
-              </b-col>
-            </b-row>
-            <b-button class="add-other-picture mt-5 d-flex align-items-center" @click="addMorePicture">
-              <i class="las la-plus icon"></i>
-              <span>ادخل شهادات اخرى</span>
-            </b-button>
           </b-col>
         </b-row>
         <div class="d-flex justify-content-center mt-5">
-          <b-button variant="primary" class="vete-save-btn m-auto"> حفظ </b-button>
+          <b-button variant="primary" class="vete-save-btn m-auto" type="submit" v-if="!loadingButtonSubmit"> حفظ </b-button>
+          <b-button variant="primary" class="vete-save-btn m-auto" v-else> <spinner-loading :text="'يتم التحميل'"></spinner-loading> </b-button>
         </div>
       </form>
     </ValidationObserver>
@@ -51,6 +43,7 @@
 </template>
 <script>
 import { core } from '@/config/pluginInit'
+import doctorApi from '../services/doctors'
 import imgUploadBox from '../components/imgUploadBox'
 export default {
   components: { imgUploadBox },
@@ -59,45 +52,48 @@ export default {
   },
   data () {
     return {
-      filesInps: [
-        {
-          label: 'صورة الهوية',
-          name: 'id-picture'
-        },
-        {
-          label: 'شهادة التخرج',
-          name: 'certificate-picture'
-        },
-        {
-          label: 'ترخيص النقابة',
-          name: 'other-picture'
-        }
-      ],
+      loadingButtonSubmit: false,
       doctor: {
-        fullName: '',
-        phone: '',
-        phone2: '',
+        full_name: '',
+        primary_phone_number: '',
+        secondary_phone_number: '',
         email: '',
-        address: ''
-      }
+        address: '',
+        national_id: ''
+      },
+      requiredDocuments: null,
+      uploadedDcouments: []
     }
   },
   methods: {
     onSubmit () {
-      console.log('hello')
+      this.loadingButtonSubmit = true
+      doctorApi.addDoctor({
+        doctor_data: this.doctor,
+        doctor_documents: this.uploadedDcouments
+      }).then(response => {
+        core.showSnackbar('success', response.data.message)
+      }).finally(() => {
+        this.loadingButtonSubmit = false
+      })
     },
-    addMorePicture () {
-      this.filesInps.push(
-        {
-          label: '',
-          name: 'other-picture',
-          editing: true
-        })
+    getRequiredDocuments () {
+      doctorApi.getRequiredDocuments().then(response => {
+        this.requiredDocuments = response.data.data
+      })
     },
-    editLabel (index, value) {
-      this.filesInps[index].label = value
-      this.filesInps[index].editing = false
+    uploadDocument (file) {
+      const fileExist = this.uploadedDcouments.find(f => f.doc_id === file.doc_id)
+      if (fileExist) {
+        const docs = this.uploadedDcouments.filter(item => item.doc_id === file.doc_id)
+        this.uploadedDcouments = docs
+      } else {
+        this.uploadedDcouments.push(file)
+      }
     }
+  },
+  created () {
+    this.getRequiredDocuments()
   }
 }
 </script>

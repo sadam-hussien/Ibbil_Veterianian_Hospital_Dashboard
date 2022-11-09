@@ -1,27 +1,16 @@
 <template>
   <div class="img-upload-box">
-    <h5 class="img-upload-box-label" v-if="!editing">{{label}}</h5>
-    <!-- edit label input -->
-    <input
-      v-if="editing"
-      type="text"
-      @blur="saveName(index)"
-      v-model="certificateName"
-      :name="`other-picture-${index}`"
-      :id="`other-picture-${index}`"
-      placeholder="ادخل اسم الشهادة هنا"
-      :class="`form-control edit-inp ${errorLabel ? 'edit-inp-error' : ''}`"
-    />
     <!-- file uploader input -->
-    <input type="file" class="d-none" :id="`file-uploader-${index}`" :name="`file-uploader-${index}`" @change="addFile"/>
+    <input type="file" class="d-none" :id="`file-uploader-${data.id}`" :name="`file-uploader-${data.id}`" @change="addFile"/>
+    <!-- title  -->
+    <h6 class="img-upload-box-label">{{data.title}}</h6>
     <!-- box  -->
-    <label class="m-0 w-100" :for="`file-uploader-${index}`" @click="handleClick">
-      <div class="img-box  d-flex align-items-center justify-content-center flex-column" :style="{backgroundImage: `url(${fileUrl})`, backgroundSize: 'cover'}">
-        <div class="img-inner" v-if="!fileUrl">
-          <i class="las la-image icon" v-if="!editing"></i>
-          <i class="las la-plus-square icon" v-else></i>
+    <label class="m-0 w-100" :for="`file-uploader-${data.id}`">
+      <div class="img-box  d-flex align-items-center justify-content-center flex-column" :style="{backgroundImage: currentDoc ? `url(${currentDoc.url})` : null, backgroundSize: 'cover'}">
+        <div class="img-inner">
+          <i class="las la-image icon"></i>
         </div>
-        <span class="types" v-if="!fileUrl">( PDF - JPG - JPEG - PNG )</span>
+        <span class="types">( {{data.type}} )</span>
       </div>
       <div class="img-upload-box-btn mt-1 text-center py-1">اختر الصورة</div>
     </label>
@@ -29,37 +18,27 @@
 </template>
 
 <script>
+import doctorApi from '../services/doctors'
+
 export default {
-  props: ['name', 'label', 'editing', 'index', 'editLabel'],
+  props: ['data', 'index'],
   data () {
     return {
-      file: null,
-      fileUrl: null,
-      certificateName: '',
-      errorLabel: false
+      currentDoc: null,
+      loading: false
     }
   },
   methods: {
     addFile (e) {
+      this.loading = true
       const targetFile = e.target.files[0]
-      this.file = targetFile
-      this.fileUrl = URL.createObjectURL(targetFile)
-    },
-    saveName (index) {
-      if (this.certificateName) {
-        // this.label = this.certificateName
-        // this.editing = false
-        this.$emit('editLabel', index, this.certificateName)
-      }
-    },
-    handleClick (e) {
-      if (this.editing) {
-        e.preventDefault()
-        this.errorLabel = true
-      } else {
-        this.errorLabel = false
-        return true
-      }
+      const fileFormData = new FormData()
+      fileFormData.append('file', targetFile)
+      doctorApi.uploadDotorDocument(fileFormData).then(res => {
+        this.currentDoc = { url: res.data.url, doc_id: this.data.id }
+        this.$emit('uploadDocument', { url: res.data.url, doc_id: this.data.id })
+        this.loading = false
+      })
     }
   }
 }

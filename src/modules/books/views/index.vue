@@ -1,7 +1,7 @@
 <template>
   <div>
     <dashboard-page-title :showAddBtn="false" :showFilter="true" :showSearch="true" :showExportation="true">الحجوزات</dashboard-page-title>
-    <main-table :fields="fields" list_url="doctor/reservations"></main-table>
+    <main-table :fields="fields" list_url="clinic/doctors"></main-table>
   </div>
 </template>
 <script>
