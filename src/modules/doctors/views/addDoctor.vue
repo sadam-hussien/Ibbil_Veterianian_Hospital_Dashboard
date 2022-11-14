@@ -14,13 +14,49 @@
                     <input-form placeholder="الاسم بالكامل" label="الإسم بالكامل" name="full-name" v-model="doctor.full_name"></input-form>
                   </b-col>
                   <b-col md="6" class="mb-3">
-                    <input-form placeholder="رقم الهاتف" label="رقم الهاتف" name="phone" v-model="doctor.primary_phone_number"> </input-form>
-                  </b-col>
-                  <b-col md="6" class="mb-3">
-                    <input-form placeholder="رقم الهاتف اخر" label="رقم الهاتف اخر" name="phone2" v-model="doctor.secondary_phone_number"></input-form>
+                    <b-row>
+                      <b-col lg="8">
+                        <input-form placeholder="رقم الهاتف" label="رقم الهاتف" name="phone" v-model="doctor.primary_phone_number"> </input-form>
+                      </b-col>
+                      <b-col lg="4">
+                        <div class="d-flex flex-column">
+                          <label >رمز الدولة</label>
+                          <vue-country-code
+                            v-model="code"
+                            @onSelect="onSelect"
+                            :onlyCountries="['sa', 'eg']"
+                            :dropdownOptions="{ disabledDialCode: true }"
+                            :enabledCountryCode= true
+                            defaultCountry="sa"
+                            class="testphone"
+                          />
+                        </div>
+                      </b-col>
+                    </b-row>
                   </b-col>
                   <b-col md="6" class="mb-3">
                     <input-form placeholder="البريد الالكترونى" label="البريد الالكترونى" name="email" v-model="doctor.email"></input-form>
+                  </b-col>
+                  <b-col md="6" class="mb-3">
+                    <b-row>
+                      <b-col lg="8">
+                        <input-form placeholder="رقم الهاتف اخر" label="رقم الهاتف اخر" name="phone2" v-model="doctor.secondary_phone_number"></input-form>
+                      </b-col>
+                      <b-col lg="4">
+                        <div class="d-flex flex-column">
+                          <label >رمز الدولة</label>
+                          <vue-country-code
+                            v-model="code"
+                            @onSelect="onSelect"
+                            :onlyCountries="['sa', 'eg']"
+                            :dropdownOptions="{ disabledDialCode: true }"
+                            :enabledCountryCode= true
+                            defaultCountry="sa"
+                            class="testphone"
+                          />
+                        </div>
+                      </b-col>
+                    </b-row>
                   </b-col>
                   <b-col md="12" class="mb-3">
                     <input-form placeholder="العنوان" label="العنوان" name="address"  v-model="doctor.address"></input-form>
