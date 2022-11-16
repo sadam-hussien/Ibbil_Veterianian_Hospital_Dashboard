@@ -105,7 +105,7 @@
                           v-model="clinicData.iban"
                           :validate="'numeric'"
                           name="iban"
-                          placeholder="349257295729875928745024" label="رقم IBAN"
+                          placeholder="ادخل ال IBAN" label="رقم IBAN"
                         />
                       </b-col>
                     </b-row>
@@ -194,7 +194,8 @@ export default {
         dateFormat: 'H:i',
         time_24hr: false,
         defaultDate: '14:30'
-      }
+      },
+      code: ''
     }
   },
   methods: {
@@ -228,13 +229,19 @@ export default {
         clinic_address: this.clinicData.clinic_address,
         work_times: workOfTimes
       }
-      console.log(payload)
 
       doctorApi.updateClinicInfo(payload).then(response => {
-        core.showSnackbar('success', 'updated')
+        core.showSnackbar('success', 'clinic updated successfully')
       }).finally(() => {
         this.loadingButtonSubmit = false
       })
+    },
+    onSelect ({ name, dialCode }) {
+      const countryCode = {
+        20: '002',
+        966: '00966'
+      }
+      this.code = countryCode[dialCode]
     }
   },
   watch: {
