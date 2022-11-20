@@ -249,21 +249,61 @@ export default {
       if (val) {
         // work times
         // add initial item for inactive days
-        const newItems = val.work_times.map(item => {
-          if (!item.is_active) {
-            if (item.working_periods.length) {
-              return item
-            } else {
-              return {
-                ...item,
-                working_periods: [{ to: '', form: '' }]
+        if (val.work_times) {
+          const newItems = val.work_times.map(item => {
+            if (!item.is_active) {
+              if (item.working_periods.length) {
+                return item
+              } else {
+                return {
+                  ...item,
+                  working_periods: [{ to: '', form: '' }]
+                }
               }
+            } else {
+              return item
             }
-          } else {
-            return item
-          }
-        })
-        this.work_times = newItems
+          })
+          this.work_times = newItems
+        } else {
+          this.work_times = [
+            {
+              day: 'Saturday',
+              is_active: false,
+              working_periods: [{ to: '', form: '' }]
+            },
+            {
+              day: 'sunday',
+              is_active: false,
+              working_periods: [{ to: '', form: '' }]
+            },
+            {
+              day: 'Monday',
+              is_active: false,
+              working_periods: [{ to: '', form: '' }]
+            },
+            {
+              day: 'Tuesday',
+              is_active: false,
+              working_periods: [{ to: '', form: '' }]
+            },
+            {
+              day: 'Wednesday',
+              is_active: false,
+              working_periods: [{ to: '', form: '' }]
+            },
+            {
+              day: 'Thursday',
+              is_active: false,
+              working_periods: [{ to: '', form: '' }]
+            },
+            {
+              day: 'Friday',
+              is_active: false,
+              working_periods: [{ to: '', form: '' }]
+            }
+          ]
+        }
       }
     }
   },
